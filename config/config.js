@@ -15,6 +15,15 @@ const config = {
     prod: {
         port: 5000,
         envName: 'Production'
+    },
+    db: {
+        mysql : {
+            port : process.env.DB_PORT,
+            host: process.env.DB_HOST,
+            name: process.env.DB_NAME,
+            user: process.env.DB_USER,
+            pass: process.env.DB_PASS
+        }
     }
 };
 

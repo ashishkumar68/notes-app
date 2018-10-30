@@ -6,8 +6,14 @@
  * @Author Ashish Kumar
  */
 
+// Pulling dotenv module.
+const dotenv = require('dotenv');
+
+// Loading dotenv module.
+dotenv.load();
+
 // Defining different environment config for Application
-const config = {
+let config = {
     staging: {
         port: 3000,
         envName: 'Staging'
@@ -18,7 +24,7 @@ const config = {
     },
     db: {
         mysql : {
-            port : process.env.DB_PORT,
+            port: process.env.DB_PORT,
             host: process.env.DB_HOST,
             name: process.env.DB_NAME,
             user: process.env.DB_USER,

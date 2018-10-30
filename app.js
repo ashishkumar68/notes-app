@@ -9,21 +9,13 @@
 const http = require('http');
 const config = require('./config/config');
 const generalContants = require('./constants/GeneralConstants');
-const url = require('url');
-const dotenv = require('dotenv');
-
-// Loading the .env variables.
-dotenv.load();
+const mainRouter = require('./router/MainRouter');
+const apiResponseService = require('./middleware/ApiResponse');
 
 // creating the Web Server.
 var server = http.createServer(function (request, response) {
-    // Parsing the url String.
-    var parsedUrl = url.parse(request.url, true);
-    // replacing the first and last / from path String
-    var route = parsedUrl.pathname.replace(/^\/+|\/+$/g, '');
-
-    response.write('Hello World');
-    response.end();
+    // Delegating the request to Router to be handled and returning the response.
+    mainRouter.handleRequest(request, response)
 });
 
 // Fetching the environment.

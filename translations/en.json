@@ -1,0 +1,13 @@
+{
+	"api": {
+		"response": {
+			"error": {
+				"not_found": "The resource requested could not be found on server.",
+				"operation_not_allowed": "The operation requested on route is not allowed.",
+				"failure_message": "Failure",
+				"internal_err": "Internal Server Error Occurred."
+			}
+		}
+	},
+	"api.response.error.failure_message": "api.response.error.failure_message"
+}

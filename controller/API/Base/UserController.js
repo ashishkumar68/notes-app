@@ -16,9 +16,11 @@ var userController = (function () {
      *  @param response
      *  @param queryObject
      *  @param content
+     *  @TODO: Complete processing part of function.
      */
     var createAuthToken = function (request, response, queryObject, content) {
-    	console.log(content);
+    	
+
         apiResponseService.createEndServerResponse(response, 200, 
             {
                 'Content-Type' : 'application/json'

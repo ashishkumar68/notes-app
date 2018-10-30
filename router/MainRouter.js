@@ -39,11 +39,11 @@ var mainRouter = (function () {
                 return;
             }
 
-            var apiModule = route.split('/')[1];
-            var apiVersion = route.split('/')[2];
+            var apiModule = route.split('/')[2];
+            var apiVersion = route.split('/')[1];
 
             if (
-                    !apiVersion || !apiModule || 'string' !== typeof(apiModule)
+                    !apiVersion || !apiModule
                 ||  !availableVersions.includes(apiVersion)
                 ||  !availableModules.includes(apiModule.toLowerCase())
             ) {

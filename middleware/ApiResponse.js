@@ -26,7 +26,7 @@ var apiResponseService = (function () {
                 'Content-Type' : contentType
             },
             {
-        	    reasonCode: '1',
+                reasonCode: '1',
                 reasonText: translator.__('api.response.error.failure_message'),
                 error: errorConstants.errorMessageMap.get(errorKey)
             }

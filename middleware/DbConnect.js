@@ -7,27 +7,36 @@
 const mysql = require('mysql');
 const config = require('../config/config');
 
-var dbConnect = (function () {
+var DbConnect = (function () {
     var __connection = null;
 
     /**
      *  Function to create a new DB Connection.
      *
      */
-    var getConnection = function () {
-    	dbConnect.__connection = mysql.createConnection({
-            host     : config.db.mysql.host,
-            port     : config.db.mysql.port,
-            user     : config.db.mysql.user,
-            password : config.db.mysql.pass,
-            database : config.db.mysql.name
+    var getConnection = async function () {
+
+        return new Promise(function (resolve, reject) {
+            __connection = mysql.createConnection({
+                host     : config.db.mysql.host,
+                port     : config.db.mysql.port,
+                user     : config.db.mysql.user,
+                password : config.db.mysql.pass,
+                database : config.db.mysql.name
+            });
+
+            // Making the Connection.
+            __connection.connect(function (err) {
+                // checking if there was any connection error.
+                if (err) {
+                    console.log('Failed to connect with Database.');
+                    reject(err);
+                    return;
+                }
+
+                resolve(__connection);
+            });
         });
-
-        // Making the Connection.
-        dbConnect.__connection.connect();
-
-        // returning the Connection.
-        return dbConnect.__connection;
     };
 
     /**
@@ -35,16 +44,16 @@ var dbConnect = (function () {
      *
      */
     var terminateConnection = function () {
-    	// Terminating the connection if it exists.
-        if (dbConnect.__connection) {
-        	dbConnect.__connection.distroy();
+        // Terminating the connection if it exists.
+        if (__connection) {
+            __connection.distroy();
         }
     };
 
     return {
-    	getConnection,
-    	terminateConnection
+        getConnection,
+        terminateConnection
     }
 })();
 
-module.exports = dbConnect;
+module.exports = DbConnect;

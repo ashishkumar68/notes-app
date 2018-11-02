@@ -7,8 +7,10 @@
  */
 const errorConstants = require('../../../constants/ErrorConstants');
 const apiResponseService = require('../../../middleware/ApiResponse');
+const dbConnection = require('../../../middleware/DbConnect');
+const validateUserService = require('../../../middleware/ValidateUserRequest');
 
-var userController = (function () {
+var UserController = (function () {
     /**
      *  Function to handle POST /user/oauth API request.
      *
@@ -19,13 +21,26 @@ var userController = (function () {
      *  @TODO: Complete processing part of function.
      */
     var createAuthToken = function (request, response, queryObject, content) {
-    	
 
-        apiResponseService.createEndServerResponse(response, 200, 
-            {
-                'Content-Type' : 'application/json'
-            }, {'status': true}
-        )
+        // Getting DB connection.
+        dbConnection.getConnection()
+        
+        // After success doing Validation of OAuth Request
+        .then(function (connection) {
+            return validateUserService.validateOAuthRequest(JSON.parse(content), connection)
+        })
+
+        // Processing the Validation Result
+        .then(function (validateResult) {
+            
+        })
+
+        // Processing for Error Case.
+        .catch(function (error) {
+            // Creating Error Response.
+            apiResponseService.createApiErrorResponse(response, 
+                error.errorKey, error.status)
+        });
     };
 
     return {
@@ -33,4 +48,4 @@ var userController = (function () {
     };
 })();
 
-module.exports = userController;
+module.exports = UserController;

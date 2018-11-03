@@ -6,7 +6,7 @@
  */
 const dbConnect = require('./dbConnect');
 
-var processUserRequest = (function () {
+let processUserRequest = (function () {
     
     /**
      *  Function to Process the Create User Request.

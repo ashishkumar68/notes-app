@@ -28,11 +28,13 @@ let userRouter = (function () {
      *  @param response
      *  @param apiVersion
      *  @param route
+     *
+     *  @return void
      */
     let handleRequest = function (request, response, apiVersion, route) {
-        var routeArr = route.split('/');
-        var baseRoute = routeArr.splice(0, 3);
-        var mainRoute = routeArr.join('/');
+        let routeArr = route.split('/');
+        let baseRoute = routeArr.splice(0, 3);
+        let mainRoute = routeArr.join('/');
 
         // checking if route is not present.
         if (undefined === routeControllerMap[apiVersion][mainRoute]) {
@@ -49,11 +51,11 @@ let userRouter = (function () {
         }
 
         // getting data from request and creating the content string.
-        var parsedUrl = url.parse(request.url, true);
+        let parsedUrl = url.parse(request.url, true);
 
         // Pulling decoder.
-        var decoder = new StringDecoder('utf-8');
-        var content = '';
+        let decoder = new StringDecoder('utf-8');
+        let content = '';
 
         // Adding handler for data and end event on request.
         request.on('data', function (data) {

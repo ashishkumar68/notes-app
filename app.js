@@ -13,20 +13,20 @@ const mainRouter = require('./router/MainRouter');
 const apiResponseService = require('./middleware/ApiResponse');
 
 // creating the Web Server.
-var server = http.createServer(function (request, response) {
+let server = http.createServer(function (request, response) {
     // Delegating the request to Router to be handled and returning the response.
     mainRouter.handleRequest(request, response)
 });
 
 // Fetching the environment.
-var envName = undefined === process.env.environment || 
+let envName = undefined === process.env.environment || 
       !Object.keys(config).includes(process.env.environment)
     ? generalContants.defaultEnvironment
     : process.env.environment
 ;
 
 // Checking if the env name is valid then pulling the port of this ENV.
-var PORT = config[envName].port;
+let PORT = config[envName].port;
 
 //listen on a required PORT.
 server.listen(PORT, function () {

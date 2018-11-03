@@ -8,7 +8,7 @@
 const utils = require('../middleware/Utils');
 const errorConstants = require('../constants/ErrorConstants');
 
-var UserRepository = (function () {
+let UserRepository = (function () {
     
     /**
      *  Function to fetch the user record from DB.
@@ -19,11 +19,11 @@ var UserRepository = (function () {
      *
      *  @return object
      */
-    var getUserDetails = function (dbConnection, username, password) {
+    let getUserDetails = function (dbConnection, username, password) {
     	// Returning the promise.
         return new Promise(function (resolve, reject) {
-            var hash = utils.generateMd5Hash(password);
-            var sql = 'SELECT username, first_name, last_name, created_at FROM users WHERE username = '+
+            let hash = utils.generateMd5Hash(password);
+            let sql = 'SELECT username, first_name, last_name, created_at FROM users WHERE username = '+
                 dbConnection.escape(username);
 
             // Checking if password is not empty only then adding it to SELECT STATEMENT

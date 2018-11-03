@@ -6,7 +6,7 @@
  */
 const crypto = require('crypto');
 
-var Utils = (function () {
+let Utils = (function () {
 
     /**
      *  Function to generate Md5 Hash of a provided string.
@@ -14,7 +14,7 @@ var Utils = (function () {
      *  @param input
      *  @return string
      */
-    var generateMd5Hash = function (input) {
+    let generateMd5Hash = function (input) {
         if (!input) {
             return '';
         }

@@ -7,7 +7,7 @@
 const errorConstants = require('../constants/ErrorConstants');
 const translator = require(__dirname + '/../config/translator');
 
-var apiResponseService = (function () {
+let apiResponseService = (function () {
     
     /**
      *  Function to create Error Response to be returned from API.
@@ -17,7 +17,7 @@ var apiResponseService = (function () {
      *  @param statusCode
      *  @param contentType
      */
-    var createApiErrorResponse = function (response, errorKey, statusCode, contentType) {
+    let createApiErrorResponse = function (response, errorKey, statusCode, contentType) {
     	contentType = undefined === contentType ? 'application/json' : contentType;
 
         // Creating Final Response Message.
@@ -27,9 +27,39 @@ var apiResponseService = (function () {
             },
             {
                 reasonCode: '1',
-                reasonText: translator.__('api.response.error.failure_message'),
+                reasonText: 'api.response.error.failure_message',
                 error: errorConstants.errorMessageMap.get(errorKey)
             }
+        );
+    };
+
+    /**
+     *  Function to create Success Response to be returned from API.
+     *
+     *  @param response
+     *  @param responseKey
+     *  @param responseObj
+     *  @param statusCode
+     *  @param contentType
+     *
+     *  @return void
+     */
+    let createApiSuccessResponse = function (response, responseKey, responseObj, statusCode, contentType) {
+        contentType = undefined === contentType ? 'application/json' : contentType;
+
+        let body = {
+            reasonCode: '0',
+            reasonText: 'api.response.error.success_message'
+        };
+
+        // Adding response Key Object to body.
+        body[responseKey] = responseObj;
+        // Creating Final Response Message.
+        createEndServerResponse(response, statusCode,
+            {
+                'Content-Type' : contentType
+            },
+            body
         );
     };
 
@@ -39,18 +69,19 @@ var apiResponseService = (function () {
      *  @param response
      *  @param status
      *  @param headers
-     *  @param bodyObject
+     *  @param body
      *
      */
-    var createEndServerResponse = function (response, status, headers, bodyObject) {
+    let createEndServerResponse = function (response, status, headers, body) {
         // Creating the response message.
         response.writeHead(status, headers);
-        response.write(JSON.stringify(bodyObject));
+        response.write(JSON.stringify(body));
         response.end();
     };
 
     return {
         createApiErrorResponse,
+        createApiSuccessResponse,
         createEndServerResponse
     };
 })();

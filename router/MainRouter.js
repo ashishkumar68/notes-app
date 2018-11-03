@@ -9,10 +9,10 @@ const errorConstants = require('../constants/ErrorConstants');
 const apiResponseService = require('../middleware/ApiResponse');
 const url = require('url');
 
-var mainRouter = (function () {
+let mainRouter = (function () {
     
-    var availableModules = ['user', 'task'];
-    var availableVersions = ['1.0'];
+    let availableModules = ['user', 'task'];
+    let availableVersions = ['1.0'];
 
     /**
      *  Function to handle the main request and delegating to different module routes.
@@ -20,16 +20,16 @@ var mainRouter = (function () {
      *  @param request
      *  @param response
      */
-    var handleRequest = function (request, response) {
-        var handleResult = {
+    let handleRequest = function (request, response) {
+        let handleResult = {
             'status' : false
         };
         
         try {
             // Parsing the url String.
-            var parsedUrl = url.parse(request.url, true);
+            let parsedUrl = url.parse(request.url, true);
             // replacing the first and last / from path String
-            var route = parsedUrl.pathname.replace(/^\/+|\/+$/g, '');
+            let route = parsedUrl.pathname.replace(/^\/+|\/+$/g, '');
 
             // Checking if the request is coming for correct API route.
             if (!route.match(/^api\//)) {
@@ -39,8 +39,8 @@ var mainRouter = (function () {
                 return;
             }
 
-            var apiModule = route.split('/')[2];
-            var apiVersion = route.split('/')[1];
+            let apiModule = route.split('/')[2];
+            let apiVersion = route.split('/')[1];
 
             if (
                     !apiVersion || !apiModule

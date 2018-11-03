@@ -7,14 +7,14 @@
 const mysql = require('mysql');
 const config = require('../config/config');
 
-var DbConnect = (function () {
-    var __connection = null;
+let DbConnect = (function () {
+    let __connection = null;
 
     /**
      *  Function to create a new DB Connection.
      *
      */
-    var getConnection = async function () {
+    let getConnection = async function () {
 
         return new Promise(function (resolve, reject) {
             __connection = mysql.createConnection({
@@ -43,7 +43,7 @@ var DbConnect = (function () {
      *  Function to terminate the DB Connection.
      *
      */
-    var terminateConnection = function () {
+    let terminateConnection = function () {
         // Terminating the connection if it exists.
         if (__connection) {
             __connection.distroy();

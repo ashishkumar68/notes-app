@@ -9,7 +9,7 @@ const errorConstants = require('../constants/ErrorConstants');
 const userRepository = require('../repository/UserRepository');
 
 
-var ValidateUserRequest = (function () {
+let ValidateUserRequest = (function () {
 
     /**
      *  Async Function to validate OAuth API request.
@@ -20,8 +20,8 @@ var ValidateUserRequest = (function () {
      *  @return object
      *  @throws Error
      */
-    var validateOAuthRequest = async function (content, dbConnection) {
-        var validateResult = {
+    let validateOAuthRequest = async function (content, dbConnection) {
+        let validateResult = {
             status: false
         };
 
@@ -48,7 +48,7 @@ var ValidateUserRequest = (function () {
             }
          
             // Checking Fetching User details from DB.
-            var user = await userRepository.getUserDetails(dbConnection, 
+            let user = await userRepository.getUserDetails(dbConnection,
                     content['username'], content['password']);
 
             // Checking if user exists or Not, if not then throw the error

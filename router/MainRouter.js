@@ -42,6 +42,7 @@ let mainRouter = (function () {
             let apiModule = route.split('/')[2];
             let apiVersion = route.split('/')[1];
 
+            // Checking route details.
             if (
                     !apiVersion || !apiModule
                 ||  !availableVersions.includes(apiVersion)

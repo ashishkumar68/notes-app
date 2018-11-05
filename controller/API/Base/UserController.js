@@ -13,6 +13,8 @@ const authService = require('../../../middleware/AuthenticateAuthorize');
 
 let UserController = (function () {
     /**
+     *  POST /user/oauth API.
+     *
      *  Function to handle POST /user/oauth API request.
      *
      *  @param request

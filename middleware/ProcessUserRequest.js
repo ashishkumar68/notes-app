@@ -4,7 +4,7 @@
  *  @Category Middleware
  *  @Author Ashish Kumar
  */
-const dbConnect = require('./dbConnect');
+const dbConnect = require('./DbConnect');
 
 let processUserRequest = (function () {
     

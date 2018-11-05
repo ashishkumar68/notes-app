@@ -79,7 +79,7 @@ let AuthenticateAuthorize = (function () {
         	}
         }
     };
-     
+
     return {
     	createJWTToken
     }

@@ -4,7 +4,7 @@
  *  @Category Router
  *  @Author Ashish Kumar
  */
-const userControllerBase = require('../controller/API/Base/UserController');
+const userControllerV10 = require('../controller/API/V10/UserController');
 const apiResponseService = require('../middleware/ApiResponse');
 const errorConstants = require('../constants/ErrorConstants');
 const url = require('url');
@@ -14,9 +14,12 @@ let userRouter = (function () {
 
     const routeControllerMap = {
         '1.0': {
-            'oauth': {
+            'user/oauth': {
                 allowedMethods: ['POST'],
-                controllerFunc: userControllerBase.createAuthToken
+                controllerFunc: userControllerV10.createAuthToken
+            },
+            'user': {
+                allowedMethods: ['POST', 'PUT', 'GET']
             }
         }
     };
@@ -33,7 +36,7 @@ let userRouter = (function () {
      */
     let handleRequest = function (request, response, apiVersion, route) {
         let routeArr = route.split('/');
-        let baseRoute = routeArr.splice(0, 3);
+        let baseRoute = routeArr.splice(0, 2);
         let mainRoute = routeArr.join('/');
 
         // checking if route is not present.

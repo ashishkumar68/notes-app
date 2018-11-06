@@ -46,7 +46,7 @@ let DbConnect = (function () {
     let terminateConnection = function () {
         // Terminating the connection if it exists.
         if (__connection) {
-            __connection.distroy();
+            __connection.destroy();
         }
     };
 

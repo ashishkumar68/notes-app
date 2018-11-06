@@ -19,15 +19,14 @@ let UserController = (function () {
      *
      *  @param request
      *  @param response
-     *  @param queryObject
+     *  @param urlContent
      *  @param content
      *
      *  @return void
      */
-    let createAuthToken = function (request, response, queryObject, content) {
+    let createAuthToken = function (request, response, urlContent, content) {
 
         content = JSON.parse(content);
-
         // Getting DB connection.
         dbConnection.getConnection()
         
@@ -43,6 +42,7 @@ let UserController = (function () {
 
         // Creating Success Response.
         .then(function (processingResult) {
+            dbConnection.terminateConnection();
             // Creating Success response from API.
             apiResponseService.createApiSuccessResponse(response,
                 'OAuthResponse', processingResult.message.response, 200);
@@ -50,10 +50,12 @@ let UserController = (function () {
 
         // Processing for Error Case.
         .catch(function (error) {
+            dbConnection.terminateConnection();
             // Creating Error Response.
             apiResponseService.createApiErrorResponse(response, 
                 error.errorKey, error.status)
-        });
+        })
+        ;
     };
 
     return {

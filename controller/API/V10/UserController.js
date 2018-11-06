@@ -7,7 +7,7 @@
  */
 const BaseUserController = require('../Base/UserController');
 
-let UserControllerV10 = (function () {
+let UserController = (function () {
 
     // Extending the Base User Controller.
     return {
@@ -16,4 +16,4 @@ let UserControllerV10 = (function () {
 })();
 
 // exporting the module.
-module.exports = UserControllerV10;
+module.exports = UserController;

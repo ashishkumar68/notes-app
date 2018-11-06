@@ -5,14 +5,67 @@
  *  @Author Ashish Kumar
  */
 const userRouter = require('./UserRouter');
+const taskRouter = require('./TaskRouter');
 const errorConstants = require('../constants/ErrorConstants');
 const apiResponseService = require('../middleware/ApiResponse');
+const utilsService = require('../middleware/Utils');
 const url = require('url');
 
 let mainRouter = (function () {
-    
-    let availableModules = ['user', 'task'];
+    const USER_RESOURCE = 'user';
+    const TASK_RESOURCE = 'task';
+
+    let availableModules = [USER_RESOURCE, TASK_RESOURCE];
     let availableVersions = ['1.0'];
+
+    /**
+     *  Function to handle the requests for user API module.
+     *
+     *  @param request
+     *  @param response
+     *  @param apiVersion
+     *  @param route
+     *  @param routeMap
+     *
+     *  @return void
+     */
+    let delegateRequestToModule = function (request, response, apiVersion, route, routeMap) {
+        let routeArr = route.split('/');
+        let baseRoute = routeArr.splice(0, 2);
+        let mainRoute = routeArr.join('/');
+        let method = request.method.toUpperCase();
+
+        // checking if route is not present.
+        if (undefined === routeMap[apiVersion][mainRoute]) {
+            return apiResponseService.
+                createApiErrorResponse(response, errorConstants.errorKeys.RES_NOT_FOUND, 404)
+            ;
+        }
+
+        // Checking if the method requested is allowed or not for the requested route.
+        if (!routeMap[apiVersion][mainRoute].hasOwnProperty(method)) {
+            return apiResponseService.
+                createApiErrorResponse(response, errorConstants.errorKeys.OP_NOT_ALLOWED, 405)
+            ;
+        }
+
+        // Getting the request content.
+        utilsService.getRequestContent(request)
+
+        // Callback for success case.
+        .then(function (data) {
+            // Calling Controller function
+            routeMap[apiVersion][mainRoute][method].
+                controllerFunc(request, response, data.urlContent , data.content);
+        })
+
+        // Callback for error case.
+        .catch(function (err) {
+            return apiResponseService
+                .createApiErrorResponse(response, errorConstants.errorKeys.INTERNAL_ERR, 500)
+            ;
+        });
+    };
 
     /**
      *  Function to handle the main request and delegating to different module routes.
@@ -57,9 +110,23 @@ let mainRouter = (function () {
             // Checking for what module the request is coming for
             // and calling the respective module route handler.
             // Checking if the module call is for user.
-            if ('user' === apiModule.toLowerCase()) {
-                userRouter.handleRequest(request, response, apiVersion, route);
+            let routeMap = null;
+            switch (apiModule.toLowerCase()) {
+                case USER_RESOURCE:
+                    routeMap = userRouter.routeControllerMap;
+                    break;
+                case TASK_RESOURCE:
+                    routeMap = taskRouter.routeControllerMap;
+                    break;
+                default:
+                    // returning the error response for resource not found.
+                    apiResponseService.
+                        createApiErrorResponse(response, errorConstants.errorKeys.RES_NOT_FOUND, 404);
+                    return;
             }
+
+            // Delegating the request to be called
+            delegateRequestToModule(request, response, apiVersion, route, routeMap);
 
         } catch (error) {
         	// Logging this error to console.

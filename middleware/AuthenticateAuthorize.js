@@ -9,7 +9,41 @@ const errorConstants = require('../constants/ErrorConstants');
 const jwt = require('jsonwebtoken');
 
 let AuthenticateAuthorize = (function () {
-    
+    /**
+     *  Function to verify the Request Header.
+     *
+     *  @param request
+     *
+     *  @return Promise
+     */
+    let authenticateApiRequest = function (request) {
+        return new Promise(function (resolve, reject) {
+            // checking if the token is present in request or not.
+            if (undefined === request.headers.authorization || 'string' !== typeof(request.headers.authorization)) {
+                reject({
+                    status: 401,
+                    errorKey: errorConstants.errorKeys.INVALID_TOKEN
+                });
+            }
+
+            // Convert Sign Key to base64 decoded format.
+            let signKey = (new Buffer(process.env.SIGNATURE_KEY, 'Base64')).toString('utf-8');
+            // verifing the token.
+            jwt.verify(request.headers.authorization, signKey , function(err, decoded) {
+                // check if the token was invalid, then rejecting it.
+                if (err) {
+                    reject({
+                        status: 401,
+                        errorKey: errorConstants.errorKeys.INVALID_TOKEN
+                    });
+                }
+
+                // otherwise marking it as resolved.
+                resolve(decoded);
+            });
+        });
+    };
+
     /**
      *  Function to Create JWT Token for a user.
      *
@@ -31,7 +65,9 @@ let AuthenticateAuthorize = (function () {
                 // Should be available to be used after 2 sec
                 'nbf': issueTime + 2,
                 // Pulling expiry time from env, setting default 2 minutes expiry and adding it to issued Time
-                'exp': issueTime + (undefined === process.env.TOKEN_EXPIRY ? process.env.TOKEN_EXPIRY : 2 * 60)
+                'exp': issueTime + (undefined !== process.env.TOKEN_EXPIRY
+                    ? Number(process.env.TOKEN_EXPIRY)
+                    : 60 * 60)
             };
 
             let options = {
@@ -48,7 +84,7 @@ let AuthenticateAuthorize = (function () {
                     function (err, token) {
                         // checking if error happens while creating JWT then rejecting promise.
                         if (err) {
-                            console.log(JSON.stringify(err));
+                            console.log(arguments.callee.name + ' Failed due to Error:' + JSON.stringify(err));
                             reject({
                                 status: 500,
                                 errorKey: errorConstants.errorKeys.INTERNAL_ERR
@@ -81,7 +117,8 @@ let AuthenticateAuthorize = (function () {
     };
 
     return {
-    	createJWTToken
+    	createJWTToken,
+        authenticateApiRequest
     }
 })();
 

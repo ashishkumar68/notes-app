@@ -10,6 +10,7 @@ const errorConstants = require('../constants/ErrorConstants');
 const apiResponseService = require('../middleware/ApiResponse');
 const utilsService = require('../middleware/Utils');
 const url = require('url');
+const authService = require('../middleware/AuthenticateAuthorize');
 
 let mainRouter = (function () {
     const USER_RESOURCE = 'user';
@@ -49,11 +50,33 @@ let mainRouter = (function () {
             ;
         }
 
-        // Getting the request content.
-        utilsService.getRequestContent(request)
+        let attrs = {};
+
+        let parsedRequestContent = null;
+        // check if the route is auth restricted.
+        if (true === routeMap[apiVersion][mainRoute][method].isAuthenticated) {
+            let authResult = authService.authenticateApiRequest(request);
+
+            parsedRequestContent = authResult.then(function (authResult) {
+                // adding user to request.
+                request.attrs = {
+                    'username': authResult.username
+                };
+
+                // Getting the parsed request content.
+                return utilsService.getRequestContent(request);
+            });
+
+            authResult.catch(function (error) {
+                apiResponseService.createApiErrorResponse(response, error.errorKey, 401);
+            });
+        } else {
+            // Getting the request content.
+            parsedRequestContent = utilsService.getRequestContent(request);
+        }
 
         // Callback for success case.
-        .then(function (data) {
+        parsedRequestContent.then(function (data) {
             // Calling Controller function
             routeMap[apiVersion][mainRoute][method].
                 controllerFunc(request, response, data.urlContent , data.content);
@@ -125,7 +148,7 @@ let mainRouter = (function () {
                     return;
             }
 
-            // Delegating the request to be called
+            // Delegating the request to its module to be processed.
             delegateRequestToModule(request, response, apiVersion, route, routeMap);
 
         } catch (error) {

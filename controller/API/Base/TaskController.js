@@ -25,7 +25,7 @@ let TaskController = (function () {
      *  @return void
      */
     let createTask = function (request, response, urlContent, content) {
-
+debugger;
         content = JSON.parse(content);
         // Getting DB connection.
         dbConnection.getConnection()

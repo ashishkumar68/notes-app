@@ -10,7 +10,8 @@ let errorConstants = (function () {
         OP_NOT_ALLOWED: 'OPNOTALLOWED',
         INTERNAL_ERR: 'INTERNAL_ERR',
         BAD_REQUEST: 'BADREQUEST',
-        INVALID_CRED: 'INVALID_CRED'
+        INVALID_CRED: 'INVALID_CRED',
+        INVALID_TOKEN: 'INVALID_TOKEN'
     };
 
     let errorMessageMap = new Map([
@@ -47,6 +48,13 @@ let errorConstants = (function () {
                 {
                     code: "1001",
                     message: "api.response.error.invalid_cred"
+                }
+            ],
+            [
+                errorKeys.INVALID_TOKEN,
+                {
+                    code: "1002",
+                    message: "api.message.error.invalid_token"
                 }
             ]
         ]

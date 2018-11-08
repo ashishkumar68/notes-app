@@ -12,7 +12,8 @@ let TaskRouter = (function () {
         '1.0': {
             'task': {
                 'POST': {
-                    controllerFunc: taskControllerV10.createTask
+                    controllerFunc: taskControllerV10.createTask,
+                    isAuthenticated: true
                 }
             }
         }

@@ -8,10 +8,17 @@ let errorConstants = (function () {
     const errorKeys = {
         RES_NOT_FOUND : 'RESNOTFOUND',
         OP_NOT_ALLOWED: 'OPNOTALLOWED',
-        INTERNAL_ERR: 'INTERNAL_ERR',
+        INTERNAL_ERR: 'INTERNALERR',
         BAD_REQUEST: 'BADREQUEST',
-        INVALID_CRED: 'INVALID_CRED',
-        INVALID_TOKEN: 'INVALID_TOKEN'
+        INVALID_CRED: 'INVALIDCRED',
+        INVALID_TOKEN: 'INVALIDTOKEN',
+        INVALID_TITLE_LEN: 'INVALIDTITLELEN',
+        INVALID_DESC_LEN: 'INVALIDDESCLEN',
+        INVALID_START_DATE: 'INVALIDSTARTDATE',
+        INVALID_DUE_DATE: 'INVALIDDUEDATE',
+        DUE_GREATER_THAN_START_DATE: 'DUEGREATERSTARTDATE',
+        INVALID_TASK_ID: 'INVALIDTASKID',
+        INVALID_PRIORITY_VAL: 'INVALIDPRIORITYVAL'
     };
 
     let errorMessageMap = new Map([
@@ -55,6 +62,55 @@ let errorConstants = (function () {
                 {
                     code: "1002",
                     message: "api.message.error.invalid_token"
+                }
+            ],
+            [
+                errorKeys.INVALID_TITLE_LEN,
+                {
+                    code: "1003",
+                    message: "api.message.error.invalid_title_len"
+                }
+            ],
+            [
+                errorKeys.INVALID_DESC_LEN,
+                {
+                    code: "1004",
+                    message: "api.message.error.invalid_desc_len"
+                }
+            ],
+            [
+                errorKeys.INVALID_START_DATE,
+                {
+                    code: "1005",
+                    message: "api.message.error.invalid_start_date"
+                }
+            ],
+            [
+                errorKeys.INVALID_DUE_DATE,
+                {
+                    code: "1006",
+                    message: "api.message.error.invalid_due_date"
+                }
+            ],
+            [
+                errorKeys.DUE_GREATER_THAN_START_DATE,
+                {
+                    code: "1007",
+                    message: "api.message.error.due_greater_start_date"
+                }
+            ],
+            [
+                errorKeys.INVALID_TASK_ID,
+                {
+                    code: "1008",
+                    message: "api.message.error.invalid_task_id"
+                }
+            ],
+            [
+                errorKeys.INVALID_PRIORITY_VAL,
+                {
+                    code: "1009",
+                    message: "api.message.error.invalid_priority_val"
                 }
             ]
         ]

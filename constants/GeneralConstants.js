@@ -23,24 +23,42 @@ const Constants = (function () {
     const DEFAULT_TASK_PRIORITY = TASK_PRIORITY_NORMAL;
 
     // Task Status Object Map.
-    let taskStatus = {
-        TASK_STATUS_NEW: '0',
-        TASK_STATUS_PROGRESS: '1',
-        TASK_STATUS_DONE: '2'
-    };
+    let taskStatus = {};
 
-    // Task prioriry Object Map.
-    let taskPriority = {
-        TASK_PRIORITY_LOW: '0',
-        TASK_PRIORITY_NORMAL: '1',
-        TASK_PRIORITY_HIGH: '2'
-    };
+    Object.defineProperty(taskStatus, TASK_STATUS_NEW, {
+        value: '0', writable: true, enumerable: true
+    });
+
+    Object.defineProperty(taskStatus, TASK_STATUS_PROGRESS, {
+        value: '1', writable: true, enumerable: true
+    });
+
+    Object.defineProperty(taskStatus, TASK_STATUS_DONE, {
+        value: '2', writable: true, enumerable: true
+    });
+
+    // Task priority Object Map.
+    let taskPriority = {};
+
+    Object.defineProperty(taskPriority, TASK_PRIORITY_LOW, {
+        value: '0', writable: true, enumerable: true
+    });
+
+    Object.defineProperty(taskPriority, TASK_PRIORITY_NORMAL, {
+        value: '1', writable: true, enumerable: true
+    });
+
+    Object.defineProperty(taskPriority, TASK_PRIORITY_HIGH, {
+        value: '2', writable: true, enumerable: true
+    });
 
     // Returning the General Constants from Constants.
     return {
         defaultEnvironment: defaultEnv,
         taskStatusObj: taskStatus,
-        taskPriorityObj: taskPriority
+        taskPriorityObj: taskPriority,
+        defaultTaskStatus: DEFAULT_TASK_STATUS,
+        defaultTaskPriority: DEFAULT_TASK_PRIORITY
     }
 })();
 

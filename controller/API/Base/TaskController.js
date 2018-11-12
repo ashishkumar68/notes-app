@@ -1,5 +1,5 @@
 /**
- *  UserController JS file for hanlding the requests related to User Module.
+ *  UserController JS file for handling the requests related to User Module.
  *
  *
  *  @Category Controller
@@ -13,6 +13,7 @@ const processTaskService = require('../../../middleware/ProcessTaskRequest');
 const authService = require('../../../middleware/AuthenticateAuthorize');
 
 let TaskController = (function () {
+
     /**
      *  POST /task API.
      *
@@ -80,8 +81,69 @@ let TaskController = (function () {
         }
     };
 
+    /**
+     *  PUT /task API.
+     *
+     *  Function to handle PUT /task API request.
+     *
+     *  @param request
+     *  @param response
+     *  @param urlContent
+     *  @param content
+     *
+     *  @return void
+     */
+    let updateTask = function (request, response, urlContent, content) {
+        try {
+
+            // checking if username is not set then throwing the error.
+            if (undefined === request.attrs.username || 'string' !== typeof(request.attrs.username)) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.BAD_REQUEST
+                };
+            }
+
+            content = JSON.parse(content);
+
+            // Getting DB connection.
+            dbConnection.getConnection()
+
+            // After fetching connection successfully, doing Validation the Update Task request
+            .then(function (connection) {
+                return validateTaskService.validateUpdateTaskRequest(content, request.attrs.username, connection);
+            })
+            .then(function (validateResult) {
+                // TODO: Complete the Processing part for the API.
+            })
+
+            // Handling Reject in case of error.
+            .catch(function (err) {
+                dbConnection.terminateConnection();
+                // Creating Error Response in case of Error.
+                apiResponseService.createApiErrorResponse(response,
+                    err.errorKey, err.status)
+            });
+        } catch (err) {
+            // Logging the error and returning the Error API Response.
+            console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(err));
+            let error = err.hasOwnProperty('status')
+                ?   err
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            // Creating Error Response.
+            apiResponseService.createApiErrorResponse(response,
+                error.errorKey, error.status)
+        }
+    };
+
     return {
-        createTask
+        createTask,
+        updateTask
     };
 })();
 

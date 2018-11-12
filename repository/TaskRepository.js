@@ -45,9 +45,46 @@ let TaskRepository = (function () {
         });
     };
 
+    /**
+     *  Function to get Task details
+     *
+     *  @param taskId
+     *  @param username
+     *  @param connection
+     *
+     *  @return Promise
+     */
+    let fetchTaskDetails = function (taskId, username, connection) {
+        return new Promise(function (resolve, reject) {
+            let sql = 'SELECT t.id as task_id, t.title, t.description, t.start_date, t.due_date, t.status, t.priority, '
+                + 't.created_at, t.last_updated_at '
+                + 'FROM tasks t INNER JOIN users u ON t.user_id = u.id '
+                + 'WHERE u.username = ' + connection.escape(username)
+                + ' AND t.id = ' + connection.escape(taskId)
+            ;
+
+            // Firing the query to DB.
+            connection.query(sql, function (error, results, fields) {
+                // checking if there was an error.
+                if (error) {
+                    console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(error));
+                    // reject the promise with error.
+                    reject({
+                        'status': '500',
+                        'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                    });
+                }
+
+                // otherwise marking the promise as resolved.
+                resolve(results[0]);
+            });
+        });
+    };
+
     // returning the properties to be exposed.
     return {
-        createNewTask
+        createNewTask,
+        fetchTaskDetails
     };
 })();
 

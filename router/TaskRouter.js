@@ -14,6 +14,10 @@ let TaskRouter = (function () {
                 'POST': {
                     controllerFunc: taskControllerV10.createTask,
                     isAuthenticated: true
+                },
+                'PUT': {
+                    controllerFunc: taskControllerV10.updateTask,
+                    isAuthenticated: true
                 }
             }
         }

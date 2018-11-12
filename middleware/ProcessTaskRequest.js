@@ -76,9 +76,53 @@ let ProcessTaskRequest = (function () {
         return processResult;
     };
 
+    /**
+     *  Function to Process Update Task request content.
+     *
+     *  @param content
+     *  @param dbConnection
+     *
+     *  @return Object
+     */
+    let processUpdateTaskRequest= async function (content, dbConnection) {
+        let processResult = {
+            status: false
+        };
+
+        try {
+            // updating the task
+            let updateResult = await taskRepo.updateTask(content.TaskRequest, dbConnection);
+
+            // returning the success response in case of Success Update
+            processResult.message = {
+                'response': {
+                    'status': 'api.response.success.task_updated'
+                }
+            };
+
+            // marking processing result to success.
+            processResult.status = true;
+        } catch (error) {
+            console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
+
+            validateResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw validateResult.error;
+        }
+
+        return processResult;
+    };
+
     // Returning the properties to be exposed from module
     return {
-        processCreateTaskRequest
+        processCreateTaskRequest,
+        processUpdateTaskRequest
     }
 })();
 

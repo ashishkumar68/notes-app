@@ -105,16 +105,28 @@ let TaskController = (function () {
             }
 
             content = JSON.parse(content);
+            let newConnection = null;
 
             // Getting DB connection.
             dbConnection.getConnection()
 
             // After fetching connection successfully, doing Validation the Update Task request
             .then(function (connection) {
+                newConnection = connection;
                 return validateTaskService.validateUpdateTaskRequest(content, request.attrs.username, connection);
             })
+
+            // Processing request after successful Validation.
             .then(function (validateResult) {
-                // TODO: Complete the Processing part for the API.
+                return processTaskService.processUpdateTaskRequest(content, newConnection)
+            })
+
+            // Creating success response after successful processing.
+            .then(function (processingResult) {
+                dbConnection.terminateConnection();
+                // Creating Success response from API.
+                apiResponseService.createApiSuccessResponse(response,
+                    'TaskResponse', processingResult.message.response, 200);
             })
 
             // Handling Reject in case of error.

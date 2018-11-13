@@ -100,28 +100,65 @@ let TaskRepository = (function () {
     /**
      *  Function to Update a Task.
      *
-     *  @param content
+     *  @param taskDetails
      *  @param connection
      *
      *  @return Promise
      */
-    let updateTask = function (content, connection) {
+    let updateTask = function (taskDetails, connection) {
         return new Promise(function (resolve, reject) {
             let sql = 'UPDATE tasks SET ';
 
             // Iterating over content keys and updating the query.
             let updates = [];
             for (let attr in __apiDbAttributesMap) {
-                if (content.hasOwnProperty(attr) && null !== content[attr]) {
+                if (taskDetails.hasOwnProperty(attr) && null !== taskDetails[attr]) {
                     // Updating data for priority.
-                    let data = 'priority' === attr ? generalConstants.taskPriorityObj[content[attr]] : content[attr];
+                    let data = 'priority' === attr ? generalConstants.taskPriorityObj[taskDetails[attr]]
+                        : taskDetails[attr];
 
                     // Adding the update to the list.
                     updates.push(__apiDbAttributesMap[attr] + ' = "' + xss(data) + '"');
                 }
             }
 
-            sql += updates.join(',') + ' WHERE id = '+ connection.escape(content.id);
+            sql += updates.join(',') + ' WHERE id = '+ connection.escape(taskDetails.id);
+
+            // Firing the query to DB.
+            connection.query(sql, function (error, results, fields) {
+
+                // checking if there was an error.
+                if (error) {
+                    console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(error));
+                    // reject the promise with error.
+                    reject({
+                        'status': '500',
+                        'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                    });
+                }
+
+                // otherwise marking the promise as resolved.
+                resolve({
+                    'updatedRows': results.changedRows
+                });
+            });
+        });
+    };
+
+    /**
+     *  Function to Update a Task Status.
+     *
+     *  @param taskId
+     *  @param status
+     *  @param connection
+     *
+     *  @return Promise
+     */
+    let updateTaskStatus = function (taskId, status, connection) {
+        return new Promise(function (resolve, reject) {
+            let sql = 'UPDATE tasks SET status = "' + generalConstants.taskStatusObj[status.toUpperCase()]
+                + '" WHERE id = '+ connection.escape(taskId)
+            ;
 
             // Firing the query to DB.
             connection.query(sql, function (error, results, fields) {
@@ -148,7 +185,8 @@ let TaskRepository = (function () {
     return {
         createNewTask,
         fetchTaskDetails,
-        updateTask
+        updateTask,
+        updateTaskStatus
     };
 })();
 

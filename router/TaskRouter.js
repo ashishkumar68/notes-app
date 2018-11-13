@@ -18,7 +18,11 @@ let TaskRouter = (function () {
                 'PUT': {
                     controllerFunc: taskControllerV10.updateTask,
                     isAuthenticated: true
-                }
+                },
+                'PATCH': {
+                    controllerFunc: taskControllerV10.patchUpdateTask,
+                    isAuthenticated: true
+                },
             }
         }
     };

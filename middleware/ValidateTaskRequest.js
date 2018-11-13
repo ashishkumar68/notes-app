@@ -132,7 +132,7 @@ let ValidateTaskRequest = (function () {
                     undefined === content || undefined === content.TaskRequest
                 || 'object' !== typeof(content.TaskRequest)
                 ||  undefined === content.TaskRequest.id || 'number' !== typeof(content.TaskRequest.id)
-                ||  Object.keys(content.TaskRequest) < 2
+                ||  Object.keys(content.TaskRequest).length < 2
                 ||  (undefined === content.TaskRequest.title && undefined === content.TaskRequest.description
                     && undefined === content.TaskRequest.startDate && undefined === content.TaskRequest.dueDate
                     && undefined === content.TaskRequest.priority)
@@ -241,10 +241,80 @@ let ValidateTaskRequest = (function () {
         return validateResult;
     };
 
+    /**
+     *  Function to validate Patch Update Task Request's content.
+     *
+     *  @param content
+     *  @param username
+     *  @param dbConnection
+     *
+     *  @return Object
+     */
+    let validatePatchUpdateTaskRequest = async function (content, username, dbConnection) {
+        let validateResult = {
+            status: false
+        };
+
+        try {
+            // Validate that the required content should be present.
+            if (
+                    undefined === content || undefined === content.TaskRequest
+                || 'object' !== typeof(content.TaskRequest) ||  undefined === content.TaskRequest.id
+                || 'number' !== typeof(content.TaskRequest.id) ||  2 !== Object.keys(content.TaskRequest).length
+                ||  undefined === content.TaskRequest.status || 'string' !== typeof(content.TaskRequest.status)
+            ) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.BAD_REQUEST
+                };
+            }
+
+            // checking that status value is valid or not.
+            let taskDetails = content.TaskRequest;
+
+            if (undefined === generalConstants.taskStatusObj[taskDetails.status.toUpperCase()]) {
+                throw {
+                    'status': 422,
+                    'errorKey': errorConstants.errorKeys.INVALID_TASK_STATUS
+                };
+            }
+
+            // Validating the taskId in request.
+            let task = await taskRepo.fetchTaskDetails(taskDetails.id, username, dbConnection);
+
+            if (undefined === task) {
+                throw {
+                    'status': 422,
+                    'errorKey': errorConstants.errorKeys.INVALID_TASK_ID
+                };
+            }
+
+            validateResult.message = {
+                'response': task
+            };
+
+            validateResult.status = true;
+        } catch (error) {
+            console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
+            validateResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw validateResult.error;
+        }
+
+        return validateResult;
+    };
+
     // Exposing the public functions.
     return {
         validateCreateTaskRequest,
-        validateUpdateTaskRequest
+        validateUpdateTaskRequest,
+        validatePatchUpdateTaskRequest
     }
 })();
 

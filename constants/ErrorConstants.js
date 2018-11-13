@@ -18,7 +18,8 @@ let errorConstants = (function () {
         INVALID_DUE_DATE: 'INVALIDDUEDATE',
         DUE_GREATER_THAN_START_DATE: 'DUEGREATERSTARTDATE',
         INVALID_TASK_ID: 'INVALIDTASKID',
-        INVALID_PRIORITY_VAL: 'INVALIDPRIORITYVAL'
+        INVALID_PRIORITY_VAL: 'INVALIDPRIORITYVAL',
+        INVALID_TASK_STATUS: 'INVALIDTASKSTATUS'
     };
 
     let errorMessageMap = new Map([
@@ -61,56 +62,63 @@ let errorConstants = (function () {
                 errorKeys.INVALID_TOKEN,
                 {
                     code: "1002",
-                    message: "api.message.error.invalid_token"
+                    message: "api.response.error.invalid_token"
                 }
             ],
             [
                 errorKeys.INVALID_TITLE_LEN,
                 {
                     code: "1003",
-                    message: "api.message.error.invalid_title_len"
+                    message: "api.response.error.invalid_title_len"
                 }
             ],
             [
                 errorKeys.INVALID_DESC_LEN,
                 {
                     code: "1004",
-                    message: "api.message.error.invalid_desc_len"
+                    message: "api.response.error.invalid_desc_len"
                 }
             ],
             [
                 errorKeys.INVALID_START_DATE,
                 {
                     code: "1005",
-                    message: "api.message.error.invalid_start_date"
+                    message: "api.response.error.invalid_start_date"
                 }
             ],
             [
                 errorKeys.INVALID_DUE_DATE,
                 {
                     code: "1006",
-                    message: "api.message.error.invalid_due_date"
+                    message: "api.response.error.invalid_due_date"
                 }
             ],
             [
                 errorKeys.DUE_GREATER_THAN_START_DATE,
                 {
                     code: "1007",
-                    message: "api.message.error.due_greater_start_date"
+                    message: "api.response.error.due_greater_start_date"
                 }
             ],
             [
                 errorKeys.INVALID_TASK_ID,
                 {
                     code: "1008",
-                    message: "api.message.error.invalid_task_id"
+                    message: "api.response.error.invalid_task_id"
                 }
             ],
             [
                 errorKeys.INVALID_PRIORITY_VAL,
                 {
                     code: "1009",
-                    message: "api.message.error.invalid_priority_val"
+                    message: "api.response.error.invalid_priority_val"
+                }
+            ],
+            [
+                errorKeys.INVALID_TASK_STATUS,
+                {
+                    code: "1010",
+                    message: "api.response.error.invalid_task_status"
                 }
             ]
         ]

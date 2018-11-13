@@ -310,11 +310,157 @@ let ValidateTaskRequest = (function () {
         return validateResult;
     };
 
+    /**
+     *  Function to Validate the Get task list request content and create filters list.
+     *
+     *  @param content
+     */
+    let valideteFetchTaskListRequest = function (content) {
+        let validateResult = {
+            status: false
+        };
+
+        try {
+            let filters = {};
+            validateResult.message = {
+                'response': {
+                    'pagination': validatePaginationDetails(content.pagination)
+                }
+            };
+
+            // checking that status value is valid or not.
+            let taskFilters = (undefined !== content && undefined !== content.filter
+                && 'object' === typeof(content.filter))
+                ? content.filter
+                : undefined
+            ;
+
+            // checking if there is no filter to be applied.
+            if (undefined === taskFilters) {
+                validateResult.message.response.filters = filters;
+                validateResult.status = true;
+
+                return validateResult;
+            }
+
+            // checking for the key values format, if correct, then adding to filters list.
+            if (undefined !== taskFilters.id && Number.isInteger(taskFilters.id) && taskFilters.id > 0) {
+                filters.id = taskFilters.id;
+            }
+
+            if (undefined !== taskFilters.title && 'string' === typeof(taskFilters.title)
+                && taskFilters.title.length <= 200
+            ) {
+                filters.title = taskFilters.title;
+            }
+
+            if (undefined !== taskFilters.description && 'string' === typeof(taskFilters.description)
+                && taskFilters.description.length <= 1000
+            ) {
+                filters.description = taskFilters.description;
+            }
+
+            if (undefined !== taskFilters.startDate && 'string' === typeof(taskFilters.startDate)
+                && true === moment(taskFilters.startDate, 'YYYY-MM-DD', true).isValid()
+            ) {
+                filters.startDate = taskFilters.startDate;
+            }
+
+            if (undefined !== taskFilters.dueDate && 'string' === typeof(taskFilters.dueDate)
+                && true === moment(taskFilters.dueDate, 'YYYY-MM-DD', true).isValid()
+            ) {
+                filters.dueDate = taskFilters.dueDate;
+            }
+
+            // checking created Date range if set.
+            if (undefined === taskFilters.createdDate || 'object' !== taskFilters.createdDate) {
+                validateResult.message.response.filters = filters;
+                validateResult.status = true;
+
+                return validateResult;
+            }
+
+            let createdDate = taskFilters.createdDate;
+
+            if (undefined !== createdDate.from && 'string' === typeof(createdDate.from)
+                && true === moment(createdDate.from, 'YYYY-MM-DD', true).isValid()
+            ) {
+                filters.createdDate = {
+                    'from': createdDate.from
+                };
+            }
+
+            if (undefined !== createdDate.to && 'string' === typeof(createdDate.to)
+                && true === moment(createdDate.to, 'YYYY-MM-DD', true).isValid()
+            ) {
+                filters.createdDate = {
+                    'to': createdDate.to
+                };
+            }
+
+            if (undefined !== filters.createdDate) {
+                if (filters.createdDate.from && !filters.createdDate.to) {
+                    filters.createdDate.to = filters.createdDate.from;
+                } else if (filters.createdDate.to && !filters.createdDate.from) {
+                    filters.createdDate.from = filters.createdDate.to;
+                }
+            }
+
+            validateResult.message.response.filters = filters;
+            validateResult.status = true;
+        } catch (error) {
+            console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
+            validateResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw validateResult.error;
+        }
+
+        return validateResult;
+    };
+
+    /**
+     *  Function to validate the pagination object for APIs.
+     *
+     *  @param pagination
+     *
+     *  @return Object
+     */
+    let validatePaginationDetails = function (pagination) {
+        let pageObject = {
+            page: 1,
+            limit: 10
+        };
+
+        // checking if pagination value was set or not.
+        if (undefined === pagination || 'object' !== typeof(pagination)) {
+            return pageObject;
+        }
+
+        // updating the page value if its valid.
+        if (undefined !== pagination.page && Number.isInteger(pagination.page) && pagination.page > 0) {
+            pageObject.page = Math.floor(pagination.page);
+        }
+
+        // updating the limit value if valid.
+        if (undefined !== pagination.limit && Number.isInteger(pagination.limit) && pagination.limit > 0) {
+            pageObject.limit = Math.floor(pagination.limit);
+        }
+
+        return pageObject;
+    };
+
     // Exposing the public functions.
     return {
         validateCreateTaskRequest,
         validateUpdateTaskRequest,
-        validatePatchUpdateTaskRequest
+        validatePatchUpdateTaskRequest,
+        valideteFetchTaskListRequest
     }
 })();
 

@@ -23,6 +23,12 @@ let TaskRouter = (function () {
                     controllerFunc: taskControllerV10.patchUpdateTask,
                     isAuthenticated: true
                 },
+            },
+            'task/list': {
+                'GET': {
+                    controllerFunc: taskControllerV10.getTasksList,
+                    isAuthenticated: true
+                }
             }
         }
     };

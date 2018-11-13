@@ -225,11 +225,60 @@ let TaskController = (function () {
         }
     };
 
+    /**
+     *  GET /task/list API.
+     *
+     *  Function to handle GET /task/list API request.
+     *
+     *  @param request
+     *  @param response
+     *  @param urlContent
+     *  @param content
+     *
+     *  @return void
+     */
+    let getTasksList = function (request, response, urlContent, content) {
+        try {
+
+            // checking if username is not set then throwing the error.
+            if (undefined === request.attrs.username || 'string' !== typeof(request.attrs.username)) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.BAD_REQUEST
+                };
+            }
+
+            content = JSON.parse(urlContent);
+
+            // Validating the request content.
+            let validateResult = validateTaskService.valideteFetchTaskListRequest(content);
+
+            let newConnection = null;
+
+            // TODO: Complete the request processing part.
+        } catch (err) {
+            // Logging the error and returning the Error API Response.
+            console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(err));
+            let error = err.hasOwnProperty('status')
+                ?   err
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            // Creating Error Response.
+            apiResponseService.createApiErrorResponse(response,
+                error.errorKey, error.status)
+        }
+    };
+
     // exposing the public functions.
     return {
         createTask,
         updateTask,
-        patchUpdateTask
+        patchUpdateTask,
+        getTasksList
     };
 })();
 

@@ -23,8 +23,8 @@ let UserRepository = (function () {
     	// Returning the promise.
         return new Promise(function (resolve, reject) {
             let hash = utils.generateMd5Hash(password);
-            let sql = 'SELECT id, username, first_name, last_name, created_at FROM users WHERE username = '+
-                dbConnection.escape(username);
+            let sql = 'SELECT id, username, first_name as firstName, last_name as lastName, created_at as createdAt ' +
+                'FROM users WHERE username = '+ dbConnection.escape(username);
 
             // Checking if password is not empty only then adding it to SELECT STATEMENT
             if (password) {

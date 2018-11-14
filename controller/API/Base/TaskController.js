@@ -1,5 +1,5 @@
 /**
- *  UserController JS file for handling the requests related to User Module.
+ *  TaskController JS file for handling the requests related to Task Module.
  *
  *
  *  @Category Controller

@@ -12,12 +12,14 @@ let UserRouter = (function () {
         '1.0': {
             'user/oauth': {
                 'POST': {
-                    controllerFunc: userControllerV10.createAuthToken
+                    controllerFunc: userControllerV10.createAuthToken,
+                    isAuthenticated: false
                 }
             },
-            'user': {
-                'POST' : {
-
+            'user/profile': {
+                'GET' : {
+                    controllerFunc: userControllerV10.getUserDetails,
+                    isAuthenticated: true
                 }
             }
         }

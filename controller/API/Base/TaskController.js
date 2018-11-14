@@ -251,11 +251,33 @@ let TaskController = (function () {
             content = JSON.parse(urlContent);
 
             // Validating the request content.
-            let validateResult = validateTaskService.valideteFetchTaskListRequest(content);
+            let validateResult = validateTaskService.validateFetchTaskListRequest(content);
 
-            let newConnection = null;
+            // Getting new DB connection.
+            dbConnection.getConnection()
 
-            // TODO: Complete the request processing part.
+            // After fetching connection successfully, doing Processing of request.
+            .then(function (connection) {
+                return processTaskService.processFetchTaskListRequest(validateResult.message.response.filters,
+                    validateResult.message.response.pagination, request.attrs.username, connection)
+            })
+
+            // Creating success response after successful processing.
+            .then(function (processingResult) {
+                dbConnection.terminateConnection();
+                // Creating Success response from API.
+                apiResponseService.createApiSuccessResponse(response,
+                    'TaskResponse', processingResult.message.response, 200);
+            })
+
+            // Handling Reject in case of error.
+            .catch(function (err) {
+                dbConnection.terminateConnection();
+                // Creating Error Response in case of Error.
+                apiResponseService.createApiErrorResponse(response,
+                    err.errorKey, err.status)
+            });
+
         } catch (err) {
             // Logging the error and returning the Error API Response.
             console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(err));

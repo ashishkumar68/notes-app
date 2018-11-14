@@ -315,7 +315,7 @@ let ValidateTaskRequest = (function () {
      *
      *  @param content
      */
-    let valideteFetchTaskListRequest = function (content) {
+    let validateFetchTaskListRequest = function (content) {
         let validateResult = {
             status: false
         };
@@ -460,7 +460,7 @@ let ValidateTaskRequest = (function () {
         validateCreateTaskRequest,
         validateUpdateTaskRequest,
         validatePatchUpdateTaskRequest,
-        valideteFetchTaskListRequest
+        validateFetchTaskListRequest
     }
 })();
 

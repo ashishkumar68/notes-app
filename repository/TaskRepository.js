@@ -181,12 +181,130 @@ let TaskRepository = (function () {
         });
     };
 
+    /**
+     *  Function to Add filters for listing tasks.
+     *
+     *  @param filters
+     *  @param connection
+     *
+     *  @return string
+     */
+    let addTaskListFilter = function (filters, connection) {
+        let criteriaList = [];
+        // iterate over the filters and add criteria to the Sql
+        for (let attr in __apiDbAttributesMap) {
+            if (undefined !== filters[attr] && null !== filters[attr] && 'priority' !== attr) {
+                criteriaList.push(__apiDbAttributesMap[attr]+ ' LIKE ' + connection.escape('%' +filters[attr] +'%'));
+            }
+        }
+
+        // setting the remaining fields manually
+        if (undefined !== filters['id'] && null !== filters['id']) {
+            criteriaList.push('id LIKE '+ connection.escape('%' + filters.id +'%'));
+        }
+
+        if (undefined !== filters['status'] && null !== filters['status']) {
+            criteriaList.push('status = '+ connection.escape(generalConstants.taskStatusObj[filters['status']]));
+        }
+
+        if (undefined !== filters['priority'] && null !== filters['priority']) {
+            criteriaList.push('priority = '+ connection.escape(generalConstants.taskPriorityObj[filters['priority']]));
+        }
+
+        if (undefined !== filters.createdDate && undefined !== filters.createdDate.from
+            && undefined !== filters.createdDate.to
+        ) {
+            criteriaList.push('DATE(created_at) >= ' + connection.escape(filters.createdDate.from) + ' AND ' +
+                'DATE(created_at) <=' + connection.escape(filters.createdDate.to)
+            );
+        }
+
+        return criteriaList.join(' OR ');
+    };
+
+    /**
+     *  Function to Fetch the list of tasks for user according
+     *  to pagination parameters.
+     *
+     *  @param filters
+     *  @param pagination
+     *  @param username
+     *  @param connection
+     *
+     *  @return Promise
+     */
+    let fetchTaskList = function (filters, pagination, username, connection) {
+        return new Promise(function (resolve, reject) {
+            let offset = (pagination.page - 1) * pagination.limit;
+            let sql = 'SELECT t.id, t.title, t.description, t.start_date as startDate, t.due_date as dueDate, ' +
+                't.status, t.priority, t.created_at as createdAt, t.last_updated_at as lastUpdatedAt FROM tasks t ' +
+                'INNER JOIN users u ON t.user_id = u.id WHERE u.username = ' + connection.escape(username) +
+                ' AND (' + addTaskListFilter(filters, connection) + ') LIMIT ' + offset  + ', '+ pagination.limit
+            ;
+
+            // Firing the query to DB.
+            connection.query(sql, function (error, results, fields) {
+
+                // checking if there was an error.
+                if (error) {
+                    console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(error));
+                    // reject the promise with error.
+                    reject({
+                        'status': '500',
+                        'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                    });
+                }
+
+                // otherwise marking the promise as resolved.
+                resolve(results);
+            });
+        });
+    };
+
+    /**
+     *  Function to get the count OR the number of total task records
+     *  according to the applied filters.
+     *
+     *  @param {Object} filters
+     *  @param {string} username
+     *  @param {Object} connection
+     *
+     *  @return Promise
+     */
+    let fetchTotalRecordsCount = function (filters, username, connection) {
+        return new Promise(function (resolve, reject) {
+            let sql = 'SELECT count(t.id) as total_tasks FROM tasks t ' +
+                'INNER JOIN users u ON t.user_id = u.id  WHERE u.username = ' + connection.escape(username) +
+                ' AND (' + addTaskListFilter(filters, connection) + ')'
+            ;
+
+            // Firing the query to DB.
+            connection.query(sql, function (error, results, fields) {
+
+                // checking if there was an error.
+                if (error) {
+                    console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(error));
+                    // reject the promise with error.
+                    reject({
+                        'status': '500',
+                        'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                    });
+                }
+
+                // otherwise marking the promise as resolved.
+                resolve(results[0].total_tasks);
+            });
+        });
+    };
+
     // returning the properties to be exposed.
     return {
         createNewTask,
         fetchTaskDetails,
         updateTask,
-        updateTaskStatus
+        updateTaskStatus,
+        fetchTaskList,
+        fetchTotalRecordsCount
     };
 })();
 

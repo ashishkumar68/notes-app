@@ -8,6 +8,8 @@ const errorConstants = require('../constants/ErrorConstants');
 const generalConstants = require('../constants/GeneralConstants');
 const userRepo = require('../repository/UserRepository');
 const taskRepo = require('../repository/TaskRepository');
+const _ = require('lodash');
+const moment = require('moment');
 
 let ProcessTaskRequest = (function () {
     /**
@@ -62,7 +64,7 @@ let ProcessTaskRequest = (function () {
         } catch (error) {
             console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
 
-            validateResult.error = error.hasOwnProperty('status')
+            processResult.error = error.hasOwnProperty('status')
                 ?   error
                 :   {
                     'status': 500,
@@ -70,7 +72,7 @@ let ProcessTaskRequest = (function () {
                 }
             ;
 
-            throw validateResult.error;
+            throw processResult.error;
         }
 
         return processResult;
@@ -105,7 +107,7 @@ let ProcessTaskRequest = (function () {
         } catch (error) {
             console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
 
-            validateResult.error = error.hasOwnProperty('status')
+            processResult.error = error.hasOwnProperty('status')
                 ?   error
                 :   {
                     'status': 500,
@@ -113,7 +115,7 @@ let ProcessTaskRequest = (function () {
                 }
             ;
 
-            throw validateResult.error;
+            throw processResult.error;
         }
 
         return processResult;
@@ -149,7 +151,7 @@ let ProcessTaskRequest = (function () {
         } catch (error) {
             console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
 
-            validateResult.error = error.hasOwnProperty('status')
+            processResult.error = error.hasOwnProperty('status')
                 ?   error
                 :   {
                     'status': 500,
@@ -157,7 +159,63 @@ let ProcessTaskRequest = (function () {
                 }
             ;
 
-            throw validateResult.error;
+            throw processResult.error;
+        }
+
+        return processResult;
+    };
+
+    /**
+     *  Function to process GET task list request.
+     *
+     *  @param {Object} filters
+     *  @param {Object} pagination
+     *  @param {string} username
+     *  @param {Object} dbConnection
+     *
+     *  @return Object
+     */
+    let processFetchTaskListRequest = async function (filters, pagination, username, dbConnection) {
+        let processResult = {
+            status: false
+        };
+
+        try {
+            // pulling the task records database.
+            let tasks = await taskRepo.fetchTaskList(filters, pagination, username, dbConnection);
+            // pulling the total number of task records.
+            let totalCount = await taskRepo.fetchTotalRecordsCount(filters, username, dbConnection);
+
+            // iterating over tasks and updating the status and priority values.
+            tasks.forEach(function (task, key) {
+                tasks[key].startDate = moment(task.startDate).format('YYYY-MM-DD');
+                tasks[key].dueDate = moment(task.dueDate).format('YYYY-MM-DD');
+                tasks[key].status = _.invert(generalConstants.taskStatusObj)[task.status];
+                tasks[key].priority = _.invert(generalConstants.taskPriorityObj)[task.priority];
+                tasks[key].createdAt = moment(task.createdAt).format('YYYY-MM-DD HH:mm:ss');
+                tasks[key].lastUpdatedAt = moment(task.lastUpdatedAt).format('YYYY-MM-DD HH:mm:ss');
+            });
+
+            processResult.message = {
+                'response': {
+                    'tasks': tasks,
+                    'totalRecords': totalCount
+                }
+            };
+
+            processResult.status = true;
+        } catch (error) {
+            console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
+
+            processResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw processResult.error;
         }
 
         return processResult;
@@ -167,7 +225,8 @@ let ProcessTaskRequest = (function () {
     return {
         processCreateTaskRequest,
         processUpdateTaskRequest,
-        processPatchUpdateTaskRequest
+        processPatchUpdateTaskRequest,
+        processFetchTaskListRequest
     }
 })();
 

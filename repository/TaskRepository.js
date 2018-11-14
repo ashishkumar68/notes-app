@@ -239,7 +239,8 @@ let TaskRepository = (function () {
             let sql = 'SELECT t.id, t.title, t.description, t.start_date as startDate, t.due_date as dueDate, ' +
                 't.status, t.priority, t.created_at as createdAt, t.last_updated_at as lastUpdatedAt FROM tasks t ' +
                 'INNER JOIN users u ON t.user_id = u.id WHERE u.username = ' + connection.escape(username) +
-                ' AND (' + addTaskListFilter(filters, connection) + ') LIMIT ' + offset  + ', '+ pagination.limit
+                ' AND (' + addTaskListFilter(filters, connection) + ') ORDER BY t.created_at DESC LIMIT ' +
+                offset  + ', '+ pagination.limit
             ;
 
             // Firing the query to DB.
@@ -297,6 +298,39 @@ let TaskRepository = (function () {
         });
     };
 
+    /**
+     *  Function to remove the task from Database.
+     *
+     *  @param {string} taskId
+     *  @param {Object} connection
+     *
+     *  @return Promise
+     */
+    let removeTask = function (taskId, connection) {
+        return new Promise(function (resolve, reject) {
+            let sql = 'DELETE FROM tasks WHERE id = ' + connection.escape(taskId);
+
+            // Firing the query to DB.
+            connection.query(sql, function (error, results, fields) {
+
+                // checking if there was an error.
+                if (error) {
+                    console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(error));
+                    // reject the promise with error.
+                    reject({
+                        'status': '500',
+                        'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                    });
+                }
+
+                // otherwise marking the promise as resolved.
+                resolve({
+                    'affectedRows': results.affectedRows
+                });
+            });
+        });
+    };
+
     // returning the properties to be exposed.
     return {
         createNewTask,
@@ -304,7 +338,8 @@ let TaskRepository = (function () {
         updateTask,
         updateTaskStatus,
         fetchTaskList,
-        fetchTotalRecordsCount
+        fetchTotalRecordsCount,
+        removeTask
     };
 })();
 

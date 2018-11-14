@@ -295,12 +295,86 @@ let TaskController = (function () {
         }
     };
 
+    /**
+     *  DELETE /task API.
+     *
+     *  Function to handle DELETE /task API request.
+     *
+     *  @param request
+     *  @param response
+     *  @param urlContent
+     *  @param content
+     *
+     *  @return void
+     */
+    let removeTask = function (request, response, urlContent, content) {
+        try {
+
+            // checking if username is not set then throwing the error.
+            if (undefined === request.attrs.username || 'string' !== typeof(request.attrs.username)) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.BAD_REQUEST
+                };
+            }
+
+            content = JSON.parse(content);
+
+            let newConnection = undefined;
+            // Getting new DB connection.
+            dbConnection.getConnection()
+
+            // After fetching connection successfully, doing Validation of request.
+            .then(function (connection) {
+                newConnection = connection;
+                return validateTaskService.validateRemoveTaskRequest(content, request.attrs.username, connection);
+            })
+
+            // After Successful validation doing the Processing of Request.
+            .then(function (validationResult) {
+                return processTaskService.processRemoveTaskRequest(content, newConnection);
+            })
+
+            // Creating success response after successful processing.
+            .then(function (processingResult) {
+                dbConnection.terminateConnection();
+                // Creating Success response from API.
+                apiResponseService.createApiSuccessResponse(response,
+                    'TaskResponse', processingResult.message.response, 200);
+            })
+
+            // Handling Reject in case of error.
+            .catch(function (err) {
+                dbConnection.terminateConnection();
+                // Creating Error Response in case of Error.
+                apiResponseService.createApiErrorResponse(response,
+                    err.errorKey, err.status)
+            });
+
+        } catch (err) {
+            // Logging the error and returning the Error API Response.
+            console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(err));
+            let error = err.hasOwnProperty('status')
+                ?   err
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            // Creating Error Response.
+            apiResponseService.createApiErrorResponse(response,
+                error.errorKey, error.status)
+        }
+    };
+
     // exposing the public functions.
     return {
         createTask,
         updateTask,
         patchUpdateTask,
-        getTasksList
+        getTasksList,
+        removeTask
     };
 })();
 

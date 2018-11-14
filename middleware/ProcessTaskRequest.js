@@ -221,12 +221,55 @@ let ProcessTaskRequest = (function () {
         return processResult;
     };
 
+    /**
+     *  Function to process Remove Task Request.
+     *
+     *  @param {Object} content
+     *  @param {Object} connection
+     *
+     *  @return {Object}
+     */
+    let processRemoveTaskRequest = async function (content, connection) {
+        let processResult = {
+            status: false
+        };
+
+        try {
+            // removing task from DB.
+            await taskRepo.removeTask(content.TaskRequest.id, connection);
+
+            // Creating Successful processing response.
+            processResult.message = {
+                'response': {
+                    'status': 'api.response.success.task_deleted'
+                }
+            }
+
+            processResult.status = true;
+        } catch (error) {
+            console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
+
+            processResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw processResult.error;
+        }
+
+        return processResult;
+    };
+
     // Returning the properties to be exposed from module
     return {
         processCreateTaskRequest,
         processUpdateTaskRequest,
         processPatchUpdateTaskRequest,
-        processFetchTaskListRequest
+        processFetchTaskListRequest,
+        processRemoveTaskRequest
     }
 })();
 

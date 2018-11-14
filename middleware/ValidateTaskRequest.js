@@ -425,6 +425,61 @@ let ValidateTaskRequest = (function () {
     };
 
     /**
+     *  Function to validate Remove task request content.
+     *
+     *  @param {Object} content
+     *  @param {string} username
+     *  @param {Object} connection
+     *
+     *  @return {Object}
+     */
+    let validateRemoveTaskRequest = async function (content, username, connection) {
+        let validateResult = {
+            status: false
+        };
+
+        try {
+            // validating that all the required keys should be present.
+            if (    undefined === content || 'object' !== typeof(content)
+                ||  undefined === content.TaskRequest || 'object' !== typeof(content.TaskRequest)
+                ||  undefined === content.TaskRequest.id || false === Number.isInteger(content.TaskRequest.id)
+                ||  content.TaskRequest.id < 1
+            ) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.BAD_REQUEST
+                };
+            }
+
+            // validating the Task Id with Database.
+            let taskDetails = content.TaskRequest;
+            let task = await taskRepo.fetchTaskDetails(taskDetails.id, username, connection);
+
+            if (undefined === task) {
+                throw {
+                    'status': 422,
+                    'errorKey': errorConstants.errorKeys.INVALID_TASK_ID
+                };
+            }
+
+            validateResult.status = true;
+        } catch (error) {
+            console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
+            validateResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw validateResult.error;
+        }
+
+        return validateResult;
+    };
+
+    /**
      *  Function to validate the pagination object for APIs.
      *
      *  @param pagination
@@ -460,7 +515,8 @@ let ValidateTaskRequest = (function () {
         validateCreateTaskRequest,
         validateUpdateTaskRequest,
         validatePatchUpdateTaskRequest,
-        validateFetchTaskListRequest
+        validateFetchTaskListRequest,
+        validateRemoveTaskRequest
     }
 })();
 

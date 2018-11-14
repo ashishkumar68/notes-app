@@ -23,6 +23,10 @@ let TaskRouter = (function () {
                     controllerFunc: taskControllerV10.patchUpdateTask,
                     isAuthenticated: true
                 },
+                'DELETE': {
+                    controllerFunc: taskControllerV10.removeTask,
+                    isAuthenticated: true
+                }
             },
             'task/list': {
                 'GET': {

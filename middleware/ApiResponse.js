@@ -49,7 +49,7 @@ let apiResponseService = (function () {
 
         let body = {
             reasonCode: '0',
-            reasonText: 'api.response.error.success_message'
+            reasonText: 'api.response.success.success_message'
         };
 
         // Adding response Key Object to body.

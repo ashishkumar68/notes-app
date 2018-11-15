@@ -172,10 +172,147 @@ let UserController = (function () {
         }
     };
 
+    /**
+     *  PUT /user/profile API.
+     *
+     *  Function to Handle the Update user's profile functionality.
+     *
+     *  @param {Object} request
+     *  @param {Object} response
+     *  @param {string} urlContent
+     *  @param {string} content
+     *
+     *  @return void
+     */
+    let updateUserProfile = function (request, response, urlContent, content) {
+        try {
+
+            // checking if username is not set then throwing the error.
+            if (undefined === request.attrs.username || 'string' !== typeof(request.attrs.username)) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.BAD_REQUEST
+                };
+            }
+
+            // Parsing the body content.
+            content = JSON.parse(content);
+
+            // Validating the Update User profile user request content.
+            validateUserService.validateUpdateUserProfileRequest(content);
+
+            // Getting new DB connection.
+            dbConnection.getConnection()
+
+            // After fetching connection successfully, doing Processing of request.
+            .then(function (connection) {
+                return processUserService.processUpdateUserProfileRequest(content, request.attrs.username, connection);
+            })
+
+            // Creating success response after successful processing.
+            .then(function (processingResult) {
+                dbConnection.terminateConnection();
+                // Creating Success response from API.
+                apiResponseService.createApiSuccessResponse(response,
+                    'ProfileResponse', processingResult.message.response, 200);
+            })
+
+            // Handling Reject in case of error.
+            .catch(function (err) {
+                dbConnection.terminateConnection();
+                // Creating Error Response in case of Error.
+                apiResponseService.createApiErrorResponse(response,
+                    err.errorKey, err.status)
+            });
+
+        } catch (err) {
+            // Logging the error and returning the Error API Response.
+            console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(err));
+            let error = err.hasOwnProperty('status')
+                ?   err
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            // Creating Error Response.
+            apiResponseService.createApiErrorResponse(response,
+                error.errorKey, error.status)
+        }
+    };
+
+    /**
+     *  POST /user/profile API.
+     *
+     *  Function to Handle the Create user's profile functionality.
+     *
+     *  @param {Object} request
+     *  @param {Object} response
+     *  @param {string} urlContent
+     *  @param {string} content
+     *
+     *  @return void
+     */
+    let createUserProfile = function (request, response, urlContent, content) {
+        try {
+            // Parsing the body content.
+            content = JSON.parse(content);
+
+            let newConnection = undefined;
+            // Getting new DB connection.
+            dbConnection.getConnection()
+
+            // After fetching connection successfully, doing Validation of request.
+            .then(function (connection) {
+                newConnection = connection;
+                return validateUserService.validateCreateUserRequest(content, connection);
+            })
+
+            // After Successful validation doing the Processing of Request.
+            .then(function (validationResult) {
+                return processUserService.processCreateUserProfileRequest(content, newConnection);
+            })
+
+            // Creating success response after successful processing.
+            .then(function (processingResult) {
+                dbConnection.terminateConnection();
+                // Creating Success response from API.
+                apiResponseService.createApiSuccessResponse(response,
+                    'ProfileResponse', processingResult.message.response, 200);
+            })
+
+            // Handling Reject in case of error.
+            .catch(function (err) {
+                dbConnection.terminateConnection();
+                // Creating Error Response in case of Error.
+                apiResponseService.createApiErrorResponse(response,
+                    err.errorKey, err.status)
+            });
+
+        } catch (err) {
+            // Logging the error and returning the Error API Response.
+            console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(err));
+            let error = err.hasOwnProperty('status')
+                ?   err
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            // Creating Error Response.
+            apiResponseService.createApiErrorResponse(response,
+                error.errorKey, error.status)
+        }
+    };
+
     return {
         createAuthToken,
         getUserDetails,
-        changePassword
+        changePassword,
+        updateUserProfile,
+        createUserProfile
     };
 })();
 

@@ -51,6 +51,8 @@ let TaskRepository = (function () {
                         'status': '500',
                         'errorKey': errorConstants.errorKeys.INTERNAL_ERR
                     });
+
+                    return;
                 }
 
                 // otherwise marking the promise as resolved.
@@ -89,6 +91,8 @@ let TaskRepository = (function () {
                         'status': '500',
                         'errorKey': errorConstants.errorKeys.INTERNAL_ERR
                     });
+
+                    return;
                 }
 
                 // otherwise marking the promise as resolved.
@@ -135,6 +139,8 @@ let TaskRepository = (function () {
                         'status': '500',
                         'errorKey': errorConstants.errorKeys.INTERNAL_ERR
                     });
+
+                    return;
                 }
 
                 // otherwise marking the promise as resolved.
@@ -171,6 +177,8 @@ let TaskRepository = (function () {
                         'status': '500',
                         'errorKey': errorConstants.errorKeys.INTERNAL_ERR
                     });
+
+                    return;
                 }
 
                 // otherwise marking the promise as resolved.
@@ -254,6 +262,8 @@ let TaskRepository = (function () {
                         'status': '500',
                         'errorKey': errorConstants.errorKeys.INTERNAL_ERR
                     });
+
+                    return;
                 }
 
                 // otherwise marking the promise as resolved.
@@ -290,6 +300,8 @@ let TaskRepository = (function () {
                         'status': '500',
                         'errorKey': errorConstants.errorKeys.INTERNAL_ERR
                     });
+
+                    return;
                 }
 
                 // otherwise marking the promise as resolved.
@@ -321,6 +333,8 @@ let TaskRepository = (function () {
                         'status': '500',
                         'errorKey': errorConstants.errorKeys.INTERNAL_ERR
                     });
+
+                    return;
                 }
 
                 // otherwise marking the promise as resolved.

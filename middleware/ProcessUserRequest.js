@@ -9,6 +9,7 @@ const errorConstants = require('../constants/ErrorConstants');
 const generalConstants = require('../constants/GeneralConstants');
 const moment = require('moment');
 const userRepo = require('../repository/UserRepository');
+const utilsService = require('./Utils');
 
 let ProcessUserRequest = (function () {
     
@@ -98,9 +99,102 @@ let ProcessUserRequest = (function () {
         return processResult;
     };
 
+    /**
+     *  Function to process Update User Profile request.
+     *
+     *  @param {Object} content
+     *  @param {string} username
+     *  @param {Object} connection
+     *
+     *  @return {Object}
+     */
+    let processUpdateUserProfileRequest = async function (content, username, connection) {
+        let processResult = {
+            status: false
+        };
+
+        try {
+            // Updating the User Profile.
+            await userRepo.updateUserProfile(content.ProfileRequest, username, connection);
+
+            // Creating the Successful processing response.
+            processResult.message = {
+                'response': {
+                    'status': 'api.response.success.user_profile_update'
+                }
+            }
+            processResult.status = true;
+        } catch (error) {
+            console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
+
+            processResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw processResult.error;
+        }
+
+        return processResult;
+    };
+
+    /**
+     *  Function to process Create User Profile request.
+     *
+     *  @param {Object} content
+     *  @param {Object} connection
+     *
+     *  @return {Object}
+     */
+    let processCreateUserProfileRequest = async function (content, connection) {
+        let processResult = {
+            status: false
+        };
+
+        try {
+            // Creating the input
+            let userDetails = {
+                'username': content.ProfileRequest.username,
+                'first_name': content.ProfileRequest.firstName,
+                'last_name': content.ProfileRequest.lastName,
+                'password': utilsService.generateMd5Hash(content.ProfileRequest.password)
+            };
+
+            // Updating the User Profile.
+            await userRepo.createUserProfile(userDetails, connection);
+
+            // Creating the Successful processing response.
+            processResult.message = {
+                'response': {
+                    'status': 'api.response.success.user_profile_create'
+                }
+            }
+            processResult.status = true;
+        } catch (error) {
+            console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
+
+            processResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw processResult.error;
+        }
+
+        return processResult;
+    };
+
     return {
         processGetUserProfileRequest,
-        processChangePasswordRequest
+        processChangePasswordRequest,
+        processUpdateUserProfileRequest,
+        processCreateUserProfileRequest
     };
 })();
 

@@ -168,9 +168,175 @@ let ValidateUserRequest = (function () {
         return validateResult;
     };
 
+    /**
+     *  Function to validate Update user profile request content.
+     *
+     *  @param {Object} content
+     *
+     *  @return Object
+     */
+    let validateUpdateUserProfileRequest = function (content) {
+        let validateResult = {
+            status: false
+        };
+
+        try {
+            // checking that all the required keys should be present.
+            if (
+                    undefined === content || 'object' !== typeof(content)
+                ||  undefined === content.ProfileRequest || 'object' !== typeof(content.ProfileRequest)
+                ||  ((undefined === content.ProfileRequest.firstName
+                        || 'string' !== typeof(content.ProfileRequest.firstName))
+                    &&  (undefined === content.ProfileRequest.lastName
+                        || 'string' !== typeof(content.ProfileRequest.lastName)))
+            ) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.BAD_REQUEST
+                };
+            }
+
+            // checking that available inputs should be of valid syntax.
+            let profileDetails = content.ProfileRequest;
+
+            if (undefined !== profileDetails.firstName && 'string' === profileDetails.firstName
+                && profileDetails.firstName.length > 100) {
+                throw {
+                    'status': 422,
+                    'errorKey': errorConstants.errorKeys.INVALID_FIRST_NAME_LEN
+                };
+            }
+
+            if (undefined !== profileDetails.lastName && 'string' === profileDetails.lastName
+                && profileDetails.lastName.length > 100) {
+                throw {
+                    'status': 422,
+                    'errorKey': errorConstants.errorKeys.INVALID_LAST_NAME_LEN
+                };
+            }
+
+            validateResult.status = true;
+        } catch (error) {
+            // Logging the Error.
+            console.log('Function ' +arguments.callee.name+' failed '+
+                'due to Error: '+ JSON.stringify(error));
+
+            validateResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw validateResult.error;
+        }
+
+        return validateResult;
+    };
+
+    /**
+     *  Function to Validate Create new user request content.
+     *
+     *  @param {Object} content
+     *  @param {Object} connection
+     *
+     *  @return {Object}
+     */
+    let validateCreateUserRequest = async function (content, connection) {
+        let validateResult = {
+            status: false
+        };
+        
+        try {
+            // Checking that all the required keys should be present.
+            if (
+                    undefined === content || 'object' !== typeof(content)
+                ||  undefined === content.ProfileRequest || 'object' !== typeof(content.ProfileRequest)
+                ||  undefined === content.ProfileRequest.username
+                || 'string' !== typeof(content.ProfileRequest.username)
+                ||  undefined === content.ProfileRequest.firstName
+                || 'string' !== typeof(content.ProfileRequest.firstName)
+                ||  undefined === content.ProfileRequest.lastName
+                || 'string' !== typeof(content.ProfileRequest.lastName)
+                || undefined === content.ProfileRequest.password
+                || 'string' !== typeof(content.ProfileRequest.password)
+            ) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.BAD_REQUEST
+                };
+            }
+
+            // Pulling the ProfileDetails from content.
+            let profileDetails = content.ProfileRequest;
+            // Validating FirstName Syntax.
+            if (profileDetails.firstName.length < 1 || profileDetails.firstName.length > 100) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.INVALID_FIRST_NAME_LEN
+                };
+            }
+
+            // Validating LastName syntax
+            if (profileDetails.lastName.length < 1 || profileDetails.lastName.length > 100) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.INVALID_LAST_NAME_LEN
+                };
+            }
+
+            // Validating the password length
+            if (profileDetails.password.length < 1 || profileDetails.password.length > 100) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.INVALID_PASS_LEN
+                };
+            }
+
+            // Validating the username.
+            if (profileDetails.username.length < 1 || profileDetails.username.length > 100) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.INVALID_USERNAME_LEN
+                };
+            }
+
+            // Validating username with DB.
+            let user = await userRepository.getUserDetails(connection, profileDetails.username);
+
+            if (undefined !== user) {
+                throw {
+                    'status': 422,
+                    'errorKey': errorConstants.errorKeys.USERNAME_TAKEN
+                };
+            }
+
+            validateResult.status = true;
+        } catch (error) {
+            // Logging the Error.
+            console.log('Function ' +arguments.callee.name+' failed '+
+                'due to Error: '+ JSON.stringify(error));
+
+            validateResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw validateResult.error;
+        }
+
+        return validateResult;
+    };
+
     return {
         validateOAuthRequest,
-        validateChangePasswordRequest
+        validateChangePasswordRequest,
+        validateUpdateUserProfileRequest,
+        validateCreateUserRequest
     }
 })();
 

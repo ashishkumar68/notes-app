@@ -10,7 +10,24 @@ const errorConstants = require('../constants/ErrorConstants');
 const xss = require('xss');
 
 let UserRepository = (function () {
-    
+
+    /**
+     * Map of API attributes to Table columns.
+     * @type {{firstName: string, lastName: string}}
+     * @private
+     */
+    const __allowedChangeAttrApiDbMap = {
+        'firstName': 'first_name',
+        'lastName': 'last_name'
+    };
+
+    /**
+     * Column array of users Table.
+     * @type {Array}
+     * @private
+     */
+    const _attrList = ['username', 'first_name', 'last_name', 'password'];
+
     /**
      *  Function to fetch the user record from DB.
      *
@@ -41,6 +58,8 @@ let UserRepository = (function () {
                         'status': '500',
                         'errorKey': errorConstants.errorKeys.INTERNAL_ERR
                     });
+
+                    return;
                 }
 
                 // Otherwise resolving the promise with results.
@@ -72,6 +91,8 @@ let UserRepository = (function () {
                         'status': '500',
                         'errorKey': errorConstants.errorKeys.INTERNAL_ERR
                     });
+
+                    return;
                 }
 
                 // Otherwise resolving the promise with results.
@@ -82,9 +103,94 @@ let UserRepository = (function () {
         });
     };
 
+    /**
+     *  Function to update user profile details.
+     *
+     *  @param {Object} content
+     *  @param {string} username
+     *  @param {Object} connection
+     *
+     *  @return Promise
+     */
+    let updateUserProfile = function (content, username, connection) {
+        return new Promise(function (resolve, reject) {
+            let sql = 'UPDATE users SET ';
+
+            let updateList = [];
+            // Iterating over the Allowed Update Attributes and if the attribute
+            // exists then adding it to be updated in SQL.
+            for (let attr in __allowedChangeAttrApiDbMap) {
+                if (undefined !== content[attr] && 'string' === typeof(content[attr])) {
+                    updateList.push(__allowedChangeAttrApiDbMap[attr] + ' = "' + content[attr] + '"');
+                }
+            }
+
+            // Creating the final SQL to be fired.
+            sql += updateList.join(', ') + ' WHERE username = ' + connection.escape(username);
+
+            // Firing DB Query to fetch user details.
+            connection.query(sql, function (err, results, fields) {
+                // checking if there was any error.
+                if (err) {
+                    // reject the promise with error.
+                    reject({
+                        'status': '500',
+                        'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                    });
+
+                    return;
+                }
+
+                // Otherwise resolving the promise with results.
+                resolve({
+                    'updatedRows': results.changedRows
+                });
+            });
+        })
+    };
+
+    /**
+     *  Function to Create a new User Profile.
+     *
+     *  @param {Object} userDetails
+     *  @param {Object} connection
+     *
+     *  @return Promise
+     */
+    let createUserProfile = function (userDetails, connection) {
+        return new Promise(function (resolve, reject) {
+            let sql = 'INSERT INTO users('+ _attrList.join(',') +') VALUES ("'+
+                Object.values(userDetails).join('","') + '")'
+            ;
+
+            // Firing the query to DB.
+            connection.query(sql, function (error, results, fields) {
+
+                // checking if there was an error.
+                if (error) {
+                    console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(error));
+                    // reject the promise with error.
+                    reject({
+                        'status': '500',
+                        'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                    });
+
+                    return;
+                }
+
+                // otherwise marking the promise as resolved.
+                resolve({
+                    'userId': results.insertId
+                });
+            });
+        })
+    };
+
     return {
         getUserDetails,
-        updateUserPassword
+        updateUserPassword,
+        updateUserProfile,
+        createUserProfile
     }
 })();
 

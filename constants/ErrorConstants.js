@@ -22,7 +22,12 @@ let errorConstants = (function () {
         INVALID_TASK_STATUS: 'INVALIDTASKSTATUS',
         INVALID_OLD_PASS_LEN: 'INVALIDOLDPASSLEN',
         INVALID_NEW_PASS_LEN: 'INVALIDNEWPASSLEN',
-        INVALID_OLD_PASS: 'INVALIDOLDPASS'
+        INVALID_OLD_PASS: 'INVALIDOLDPASS',
+        INVALID_FIRST_NAME_LEN: 'INVALIDFIRSTNAMELEN',
+        INVALID_LAST_NAME_LEN: 'INVALIDLASTNAMELEN',
+        INVALID_PASS_LEN: 'INVALIDPASSLEN',
+        INVALID_USERNAME_LEN: 'INVALIDUSERNAMELEN',
+        USERNAME_TAKEN: 'USERNAMETAKEN'
     };
 
     let errorMessageMap = new Map([
@@ -134,30 +139,67 @@ let errorConstants = (function () {
         [
             errorKeys.INVALID_OLD_PASS_LEN,
             {
-                code: "1011",
+                code: "1012",
                 message: "api.response.error.invalid_old_pass_len"
             }
         ],
         [
             errorKeys.INVALID_NEW_PASS_LEN,
             {
-                code: "1012",
+                code: "1013",
                 message: "api.response.error.invalid_new_pass_len"
             }
         ],
         [
             errorKeys.INVALID_OLD_PASS,
             {
-                code: "1013",
+                code: "1014",
                 message: "api.response.error.invalid_old_pass"
+            }
+        ],
+        [
+            errorKeys.INVALID_FIRST_NAME_LEN,
+            {
+                code: "1015",
+                message: "api.response.error.invalid_first_name_len"
+            }
+        ],
+        [
+            errorKeys.INVALID_LAST_NAME_LEN,
+            {
+                code: "1016",
+                message: "api.response.error.invalid_last_name_len"
+            }
+        ],
+        [
+            errorKeys.INVALID_PASS_LEN,
+            {
+                code: "1017",
+                message: "api.response.error.invalid_pass_len"
+            }
+        ],
+        [
+            errorKeys.INVALID_USERNAME_LEN,
+            {
+                code: "1018",
+                message: "api.response.error.invalid_username_len"
+            }
+        ],
+        [
+            errorKeys.USERNAME_TAKEN,
+            {
+                code: "1019",
+                message: "api.response.error.username_taken"
             }
         ]
     ]);
 
+    // exposing Error keys and message map.
     return {
         errorKeys,
     	errorMessageMap
     }
 })();
 
+// exposing the module.
 module.exports = errorConstants;

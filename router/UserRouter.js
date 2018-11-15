@@ -20,6 +20,14 @@ let UserRouter = (function () {
                 'GET': {
                     controllerFunc: userControllerV10.getUserDetails,
                     isAuthenticated: true
+                },
+                'PUT': {
+                    controllerFunc: userControllerV10.updateUserProfile,
+                    isAuthenticated: true
+                },
+                'POST': {
+                    controllerFunc: userControllerV10.createUserProfile,
+                    isAuthenticated: false
                 }
             },
             'user/password': {

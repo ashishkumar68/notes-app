@@ -57,8 +57,50 @@ let ProcessUserRequest = (function () {
         return processResult;
     };
 
+    /**
+     *  Function to process Change password request.
+     *
+     *  @param {Object} content
+     *  @param {Object} user
+     *  @param {Object} connection
+     *
+     *  @return {Object}
+     */
+    let processChangePasswordRequest = async function (content, user, connection) {
+        let processResult = {
+            status: false
+        };
+        
+        try {
+            // changing user's password
+            await userRepo.updateUserPassword(user.id, content.ProfileRequest.newPassword, connection);
+
+            processResult.message = {
+                'response': {
+                    'status': 'api.response.success.change_pass'
+                }
+            }
+            processResult.status = true;
+        } catch (error) {
+            console.log(arguments.callee.name + ' Function failed due to Error:' + JSON.stringify(error));
+
+            processResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw processResult.error;
+        }
+
+        return processResult;
+    };
+
     return {
-        processGetUserProfileRequest
+        processGetUserProfileRequest,
+        processChangePasswordRequest
     };
 })();
 

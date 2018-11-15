@@ -7,6 +7,7 @@
  */
 const utils = require('../middleware/Utils');
 const errorConstants = require('../constants/ErrorConstants');
+const xss = require('xss');
 
 let UserRepository = (function () {
     
@@ -48,8 +49,42 @@ let UserRepository = (function () {
         });
     };
 
+    /**
+     *  Function to update a user's password.
+     *
+     *  @param {number} userId
+     *  @param {string} newPass
+     *  @param {Object} connection
+     *
+     *  @return Promise
+     */
+    let updateUserPassword = function (userId, newPass, connection) {
+        return new Promise(function (resolve, reject) {
+            let sql = 'UPDATE users SET password = "'+ utils.generateMd5Hash(xss(newPass)) +
+                '" WHERE id = ' + connection.escape(userId);
+
+            // Firing DB Query to fetch user details.
+            connection.query(sql, function (err, results, fields) {
+                // checking if there was any error.
+                if (err) {
+                    // reject the promise with error.
+                    reject({
+                        'status': '500',
+                        'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                    });
+                }
+
+                // Otherwise resolving the promise with results.
+                resolve({
+                    'updatedRows': results.changedRows
+                });
+            });
+        });
+    };
+
     return {
-        getUserDetails
+        getUserDetails,
+        updateUserPassword
     }
 })();
 

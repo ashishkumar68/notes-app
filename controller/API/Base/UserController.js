@@ -30,7 +30,7 @@ let UserController = (function () {
         content = JSON.parse(content);
         // Getting DB connection.
         dbConnection.getConnection()
-        
+
         // After success doing Validation of OAuth Request
         .then(function (connection) {
             return validateUserService.validateOAuthRequest(content, connection)
@@ -53,7 +53,7 @@ let UserController = (function () {
         .catch(function (error) {
             dbConnection.terminateConnection();
             // Creating Error Response.
-            apiResponseService.createApiErrorResponse(response, 
+            apiResponseService.createApiErrorResponse(response,
                 error.errorKey, error.status)
         })
         ;
@@ -66,8 +66,8 @@ let UserController = (function () {
      *
      *  @param {Object} request
      *  @param {Object} response
-     *  @param {Object} urlContent
-     *  @param {Object} content
+     *  @param {string} urlContent
+     *  @param {string} content
      *
      *  @return void
      */
@@ -97,9 +97,85 @@ let UserController = (function () {
         });
     };
 
+    /**
+     *  PUT /user/password API.
+     *
+     *  Function to handle PUT /user/password API request.
+     *
+     *  @param {Object} request
+     *  @param {Object} response
+     *  @param {string} urlContent
+     *  @param {string} content
+     *
+     *  @return void
+     */
+    let changePassword = function (request, response, urlContent, content) {
+        try {
+
+            // checking if username is not set then throwing the error.
+            if (undefined === request.attrs.username || 'string' !== typeof(request.attrs.username)) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.BAD_REQUEST
+                };
+            }
+
+            // Parsing the body content.
+            content = JSON.parse(content);
+
+            let newConnection = undefined;
+            // Getting new DB connection.
+            dbConnection.getConnection()
+
+            // After fetching connection successfully, doing Validation of request.
+            .then(function (connection) {
+                newConnection = connection;
+                return validateUserService.validateChangePasswordRequest(content, request.attrs.username, connection);
+            })
+
+            // After Successful validation doing the Processing of Request.
+            .then(function (validationResult) {
+                return processUserService.processChangePasswordRequest(content,
+                    validationResult.message.response.user, newConnection);
+            })
+
+            // Creating success response after successful processing.
+            .then(function (processingResult) {
+                dbConnection.terminateConnection();
+                // Creating Success response from API.
+                apiResponseService.createApiSuccessResponse(response,
+                    'ProfileResponse', processingResult.message.response, 200);
+            })
+
+            // Handling Reject in case of error.
+            .catch(function (err) {
+                dbConnection.terminateConnection();
+                // Creating Error Response in case of Error.
+                apiResponseService.createApiErrorResponse(response,
+                    err.errorKey, err.status)
+            });
+
+        } catch (err) {
+            // Logging the error and returning the Error API Response.
+            console.log(arguments.callee.name + ' Function failed due to Error: ' + JSON.stringify(err));
+            let error = err.hasOwnProperty('status')
+                ?   err
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            // Creating Error Response.
+            apiResponseService.createApiErrorResponse(response,
+                error.errorKey, error.status)
+        }
+    };
+
     return {
         createAuthToken,
-        getUserDetails
+        getUserDetails,
+        changePassword
     };
 })();
 

@@ -17,8 +17,14 @@ let UserRouter = (function () {
                 }
             },
             'user/profile': {
-                'GET' : {
+                'GET': {
                     controllerFunc: userControllerV10.getUserDetails,
+                    isAuthenticated: true
+                }
+            },
+            'user/password': {
+                'PUT': {
+                    controllerFunc: userControllerV10.changePassword,
                     isAuthenticated: true
                 }
             }

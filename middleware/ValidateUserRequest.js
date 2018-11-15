@@ -85,8 +85,92 @@ let ValidateUserRequest = (function () {
     };
 
 
+    /**
+     *  Function to validate Change password request content.
+     *
+     *  @param {Object} content
+     *  @param {string} username
+     *  @param {Object} connection
+     *
+     *  @return {Object}
+     */
+    let validateChangePasswordRequest = async function (content, username, connection) {
+        let validateResult = {
+            status: false
+        };
+        
+        try {
+            if (
+                    undefined === content || 'object' !== typeof(content)
+                ||  undefined === content.ProfileRequest || 'object' !== typeof(content.ProfileRequest)
+                ||  undefined === content.ProfileRequest.oldPassword
+                || 'string' !== typeof(content.ProfileRequest.oldPassword)
+                ||  undefined === content.ProfileRequest.newPassword
+                || 'string' !== typeof(content.ProfileRequest.newPassword)
+            ) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.BAD_REQUEST
+                };
+            }
+
+            // Getting the ProfileRequest Object.
+            let profileRequest = content.ProfileRequest;
+
+            // Validating the length of old and new Passwords.
+            if (profileRequest.oldPassword.length < 1 || profileRequest.oldPassword.length > 100) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.INVALID_OLD_PASS_LEN
+                };
+            }
+
+            if (profileRequest.newPassword.length < 1 || profileRequest.newPassword.length > 100) {
+                throw {
+                    'status': 400,
+                    'errorKey': errorConstants.errorKeys.INVALID_NEW_PASS_LEN
+                };
+            }
+
+            // Validating the oldPassword with DB.
+            let user = await userRepository.getUserDetails(connection, username, profileRequest.oldPassword);
+
+            if (undefined === user) {
+                throw {
+                    'status': 422,
+                    'errorKey': errorConstants.errorKeys.INVALID_OLD_PASS
+                };
+            }
+
+            // Marking request validation success.
+            validateResult.message = {
+                'response': {
+                    'user': user
+                }
+            };
+            validateResult.status = true;
+        } catch (error) {
+            // Logging the Error.
+            console.log('Function ' +arguments.callee.name+' failed '+
+                'due to Error: '+ JSON.stringify(error));
+
+            validateResult.error = error.hasOwnProperty('status')
+                ?   error
+                :   {
+                    'status': 500,
+                    'errorKey': errorConstants.errorKeys.INTERNAL_ERR
+                }
+            ;
+
+            throw validateResult.error;
+        }
+
+        return validateResult;
+    };
+
     return {
-        validateOAuthRequest
+        validateOAuthRequest,
+        validateChangePasswordRequest
     }
 })();
 
